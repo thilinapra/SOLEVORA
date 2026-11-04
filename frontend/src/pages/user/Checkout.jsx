@@ -320,10 +320,7 @@ const pollForOrder = (pendingId, onSuccess, onFailure) => {
   const interval = setInterval(async () => {
     attempts++;
     try {
-      const { data } = await axios.get(
-        `https://residual-self-flaky.ngrok-free.dev/api/payment/pending/${pendingId}`,
-        { headers: { "ngrok-skip-browser-warning": "true" } },
-      );
+      const { data } = await axios.get(`${API_URL}/payment/pending/${pendingId}`);
       const status = data.data?.status;
 
       if (status === "COMPLETED" && data.data?.orderId) {
@@ -682,7 +679,7 @@ const Checkout = () => {
     setPaying(true);
     try {
       const hashRes = await axios.post(
-        `https://residual-self-flaky.ngrok-free.dev/api/payment/hash`,
+        `${API_URL}/payment/hash`,
         { ...buildOrderPayload("ONLINE"), amount: total.toFixed(2), currency: "LKR" },
       );
 
@@ -692,7 +689,13 @@ const Checkout = () => {
         return;
       }
 
-      const { hash, merchant_id, pending_payment_id } = hashRes.data.data;
+      const { hash, merchant_id, pending_payment_id, notify_url } = hashRes.data.data;
+
+      if (!window.payhere?.startPayment) {
+        openPm("error", "Payment library failed to load. Refresh the page and try again.");
+        setPaying(false);
+        return;
+      }
       const nameParts  = (form.fullName || "Guest").split(" ");
       const snapItems  = [...cart];
 
@@ -742,7 +745,7 @@ const Checkout = () => {
         merchant_id: String(merchant_id),
         return_url:  `${window.location.origin}/profile/orders`,
         cancel_url:  window.location.href,
-        notify_url:  `https://residual-self-flaky.ngrok-free.dev/api/payment/notify`,
+        notify_url,
         order_id:    String(pending_payment_id),
         items:       "SoleVora Order",
         amount:      total.toFixed(2),

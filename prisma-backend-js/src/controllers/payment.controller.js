@@ -99,6 +99,13 @@ export const generatePaymentHash = async (req, res) => {
       .digest("hex")
       .toUpperCase();
 
+    const notifyBase = (
+      process.env.PUBLIC_BACKEND_URL ||
+      process.env.BACKEND_URL ||
+      "http://localhost:5001"
+    ).replace(/\/$/, "");
+    const notifyUrl = `${notifyBase}/api/payment/notify`;
+
     console.log(
       `[PayHere] Hash generated for pending payment #${pendingPayment.id}`,
     );
@@ -110,6 +117,7 @@ export const generatePaymentHash = async (req, res) => {
         merchant_id: PAYHERE_MERCHANT_ID,
         pending_payment_id: pendingPayment.id,
         amount: normalizedAmount,
+        notify_url: notifyUrl,
       },
     });
   } catch (error) {

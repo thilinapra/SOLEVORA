@@ -50,7 +50,12 @@ import catLoafers from "../../assets/category/cat-loafers.png";
 import catAthletic from "../../assets/category/cat-athletic.png";
 
 
-const FALLBACK_IMG = `data:image/svg+xml,...`; 
+const FALLBACK_IMG =
+  `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' ` +
+  `width='80' height='80' viewBox='0 0 80 80'%3E` +
+  `%3Crect width='80' height='80' fill='%23f3f4f6'/%3E` +
+  `%3Cpath d='M20 55l14-18 10 12 8-10 14 16H20z' fill='%23d1d5db'/%3E` +
+  `%3Ccircle cx='52' cy='28' r='7' fill='%23d1d5db'/%3E%3C/svg%3E`;
 
 
 
@@ -111,10 +116,10 @@ const Home = () => {
     try {
       const category = activeCategory === "All" ? "" : encodeURIComponent(activeCategory);
       const endpoint = category
-        ? `http://localhost:5001/api/products?category=${category}`
-        : "http://localhost:5001/api/products";
+        ? `${BASE_URL}/api/products?category=${category}&limit=100`
+        : `${BASE_URL}/api/products?limit=100`;
       const resp = await axios.get(endpoint);
-      setProducts(resp.data.data);
+      setProducts(Array.isArray(resp.data?.data) ? resp.data.data : []);
     } catch (err) {
       console.error('Error fetching products:', err);
     } finally {
@@ -213,7 +218,7 @@ const getProductImage = (item) => {
             <div style={{ textAlign: 'center', width: '100%', padding: '40px' }}>Loading products...</div>
           ) : filteredProducts.length === 0 ? (
             <div style={{ colSpan: '4', textAlign: 'center', width: '100%', padding: '40px' }}>No products found in this category.</div>
-          ) : filteredProducts.slice(0, 3).map((item) => (
+          ) : filteredProducts.map((item) => (
             <Card
               key={item.id}
               image={getProductImage(item)}

@@ -27,9 +27,25 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.json());
 
+const allowedOrigins = new Set([
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://127.0.0.1:5173",
+  "http://127.0.0.1:5174",
+]);
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin(origin, callback) {
+      // Read at request time so dotenv in server.js has already loaded.
+      if (process.env.FRONTEND_URL) allowedOrigins.add(process.env.FRONTEND_URL);
+      // Allow same-origin tools (curl, server-to-server) and the Vite dev ports.
+      if (!origin || allowedOrigins.has(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
     credentials: true,
   })
 );

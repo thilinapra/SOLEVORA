@@ -3,6 +3,13 @@ import PropTypes from "prop-types";
 import "../../styles/user/ui/Card.css";
 import { FaStar, FaRegStar } from "react-icons/fa";
 
+const FALLBACK_IMG =
+  `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' ` +
+  `width='80' height='80' viewBox='0 0 80 80'%3E` +
+  `%3Crect width='80' height='80' fill='%23f3f4f6'/%3E` +
+  `%3Cpath d='M20 55l14-18 10 12 8-10 14 16H20z' fill='%23d1d5db'/%3E` +
+  `%3Ccircle cx='52' cy='28' r='7' fill='%23d1d5db'/%3E%3C/svg%3E`;
+
 const Card = ({
   image,
   title,
